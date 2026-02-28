@@ -75,4 +75,49 @@ def nms(magnitude, direction):
 
     return res
 
+def hysteresis(magnitude):
+    height, width = magnitude.shape
+    res = np.zeros(magnitude.shape)
+    high = .05*255
+    low = .024*255
 
+    for y in range(1, height - 1):
+        for x in range(1, width - 1):
+            if(magnitude[x, y] > high):
+                res[x,y] = 255
+                res = checkneighbors(magnitude, res, x, y, high, low)
+    return res
+
+def checkneighbors(magnitude, res, x, y, high, low):
+    for i in range(-1, 1):
+        for j in range(-1, 1):
+            if(magnitude[x+j, y+i] > low and magnitude[x+j, y+i] < high and i != 0 and j != 0 ):
+                res[x+j, y+i] = 255
+                res = checkneighbors(magnitude, res, x+j, y+i, high, low)
+    return res
+
+
+im = cv2.imread("images\lena-1.png", 0)
+im = im.astype(float)
+
+gaussian_kernel = get_gaussian_kernel(9, 3)
+im_smoothed = convolution(im, gaussian_kernel)
+
+# cv2.imshow("Original image", im.astype(np.uint8))
+# cv2.imshow("Smoothed image", im_smoothed.astype(np.uint8))
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+
+gradient_magnitude, gradient_direction = compute_gradient(im_smoothed)
+
+edge_nms = nms(gradient_magnitude, gradient_direction)
+
+# plt.hist(edge_nms[edge_nms>0].flatten(), bins=50)
+# plt.show()
+
+# cv2.imshow("Before NMS", gradient_magnitude.astype(np.uint8))
+cv2.imshow("After NMS", edge_nms.astype(np.uint8))
+# cv2.imwrite("images\imgnms.png", edge_nms)
+cv2.imshow("after hysteresis", hysteresis(edge_nms).astype(np.uint8))
+cv2.waitKey()
+cv2.destroyAllWindows()

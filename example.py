@@ -86,11 +86,11 @@ im_smoothed = convolution(im, gaussian_kernel)
 # cv2.destroyAllWindows()
 
 gradient_magnitude, gradient_direction = compute_gradient(im_smoothed)
-
+# print(gradient_magnitude)
 edge_nms = nms(gradient_magnitude, gradient_direction)
 
-# plt.hist(edge_nms[edge_nms>0].flatten(), bins=50)
-# plt.show()
+plt.hist(edge_nms[edge_nms>0].flatten(), bins=50)
+plt.show()
 
 cv2.imshow("Before NMS", gradient_magnitude.astype(np.uint8))
 cv2.imshow("After NMS", edge_nms.astype(np.uint8))
