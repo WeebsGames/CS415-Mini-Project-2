@@ -1,5 +1,3 @@
-# code for hysteresis thresholding in Canny edge detector
-
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -76,3 +74,25 @@ def nms(magnitude, direction):
     return res
 
 
+im = cv2.imread("images\lena-1.png", 0)
+im = im.astype(float)
+
+gaussian_kernel = get_gaussian_kernel(9, 3)
+im_smoothed = convolution(im, gaussian_kernel)
+
+# cv2.imshow("Original image", im.astype(np.uint8))
+# cv2.imshow("Smoothed image", im_smoothed.astype(np.uint8))
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+
+gradient_magnitude, gradient_direction = compute_gradient(im_smoothed)
+
+edge_nms = nms(gradient_magnitude, gradient_direction)
+
+# plt.hist(edge_nms[edge_nms>0].flatten(), bins=50)
+# plt.show()
+
+cv2.imshow("Before NMS", gradient_magnitude.astype(np.uint8))
+cv2.imshow("After NMS", edge_nms.astype(np.uint8))
+cv2.waitKey()
+cv2.destroyAllWindows()
