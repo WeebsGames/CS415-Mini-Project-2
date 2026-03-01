@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-
+import math
 
 def convolution(im, kernel):
     kernel = np.flip(np.flip(kernel, axis=0), axis=1)
@@ -75,11 +75,9 @@ def nms(magnitude, direction):
 
     return res
 
-def hysteresis(magnitude):
+def hysteresis(magnitude, high, low):
     height, width = magnitude.shape
     res = np.zeros(magnitude.shape)
-    high = .05*255
-    low = .024*255
 
     for y in range(1, height - 1):
         for x in range(1, width - 1):
@@ -118,13 +116,14 @@ edge_nms = nms(gradient_magnitude, gradient_direction)
 # cv2.imshow("Before NMS", gradient_magnitude.astype(np.uint8))
 cv2.imshow("After NMS", edge_nms.astype(np.uint8))
 # cv2.imwrite("images\imgnms.png", edge_nms)
-cv2.imshow("after hysteresis", hysteresis(edge_nms).astype(np.uint8))
+cv2.imshow("after hysteresis1", hysteresis(edge_nms, high = .05*255, low = .024*255).astype(np.uint8))
+cv2.imshow("after hysteresis2", hysteresis(edge_nms, high = .075*255, low = .04*255).astype(np.uint8))
+cv2.imshow("after hysteresis3", hysteresis(edge_nms, high = .03*255, low = .015*255).astype(np.uint8))
 cv2.waitKey()
 cv2.destroyAllWindows()
 
-import cv2
-import numpy as np
-import math
+
+## VV hough transform code VV
 
 def HoughTransform(edge_map):
     theta_values = np.deg2rad(np.arange(-90.0, 90.0))
@@ -163,10 +162,13 @@ def find_local_maxima(accumulator, threshold=30):
 
 
 im = cv2.imread('images\paper.bmp')
+im2 = cv2.imread("images\shape.bmp")
 
 im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+im_gray2 = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
 
 edge_map = cv2.Canny(im_gray, 70, 150)
+edge_map2 = cv2.Canny(im_gray2, 70, 150)
 
 accumulator, theta_values, rho_values = HoughTransform(edge_map)
 # print(np.argwhere(accumulator))
@@ -191,5 +193,75 @@ for line in lines:
 cv2.imshow("Edges", edge_map)
 cv2.imshow("Hough Transform", (accumulator*255/accumulator.max()).astype(np.uint8))
 cv2.imshow("Output", im)
+
+accumulator, theta_values, rho_values = HoughTransform(edge_map2)
+lines = find_local_maxima(accumulator, 30)
+height, width = im_gray2.shape
+
+for line in lines:
+    rho = rho_values[line[0]]
+    theta = theta_values[line[1]]
+    slope = -np.cos(theta)/np.sin(theta)
+    intercept = rho/np.sin(theta)
+    x1, x2 = 0, width
+    y1 = int(slope*x1 + intercept)
+    y2 = int(slope*x2 + intercept)
+    cv2.line(im2, (x1, y1), (x2, y2), (0, 0, 255), 2)
+    # cv2.imshow("Output", im)
+    # cv2.waitKey(0)
+
+
+cv2.imshow("Edges2", edge_map2)
+cv2.imshow("Hough Transform2", (accumulator*255/accumulator.max()).astype(np.uint8))
+cv2.imshow("Output2", im2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# VV cv2.canny1 and cv2.houghlines2 VV
+
+im = cv2.imread("images\lena-1.png")
+imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+
+newim = cv2.Canny(imgray, 100, 200)
+cv2.imshow("cv2Canny", newim)
+
+im2 = cv2.imread("images\paper.bmp")
+im2gray = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
+im3 = cv2.imread("images\shape.bmp")
+im3gray = cv2.cvtColor(im3, cv2.COLOR_BGR2GRAY)
+
+edge1 = cv2.Canny(im2gray, 50, 50, apertureSize=3)
+edge2 = cv2.Canny(im3gray, 50, 50, apertureSize=3)
+lines1 = cv2.HoughLines(edge1, 1, np.pi/180, 50)
+# print(lines1)
+lines2 = cv2.HoughLines(edge2, 1, np.pi/180, 30)
+for x in range(len(lines1)):
+    for rho,theta in lines1[x]:
+        a = np.cos(theta)
+        b = np.sin(theta)
+        x0 = a*rho
+        y0 = b*rho
+        x1 = int(x0 + 1000*(-b))
+        y1 = int(y0 + 1000*(a))
+        x2 = int(x0 - 1000*(-b))
+        y2 = int(y0 - 1000*(a))
+
+        cv2.line(im2,(x1,y1),(x2,y2),(0,0,255),2)
+
+for x in range(len(lines2)):
+    for rho,theta in lines2[x]:
+        a = np.cos(theta)
+        b = np.sin(theta)
+        x0 = a*rho
+        y0 = b*rho
+        x1 = int(x0 + 1000*(-b))
+        y1 = int(y0 + 1000*(a))
+        x2 = int(x0 - 1000*(-b))
+        y2 = int(y0 - 1000*(a))
+
+        cv2.line(im3,(x1,y1),(x2,y2),(0,0,255),2)
+
+cv2.imshow("cv2Hough1", im2)
+cv2.imshow("cv2Hough2", im3)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
