@@ -24,6 +24,19 @@ def HoughTransform(edge_map):
         # cv2.waitKey(0)
     return accumulator, theta_values, rho_values
 
+def find_local_maxima(accumulator, threshold=30):
+    height, width = accumulator.shape
+    local_maxima = np.zeros_like(accumulator, dtype=bool)
+    
+    for i in range(1, height-1):
+        for j in range(1, width-1):
+            if accumulator[i, j] > threshold:
+                # Check if it's a local maximum
+                if accumulator[i, j] >= np.max(accumulator[i-1:i+2, j-1:j+2]):
+                    local_maxima[i, j] = True
+    
+    return np.argwhere(local_maxima)
+
 
 im = cv2.imread('images\paper.bmp')
 
@@ -32,10 +45,13 @@ im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 edge_map = cv2.Canny(im_gray, 70, 150)
 
 accumulator, theta_values, rho_values = HoughTransform(edge_map)
-
-lines = np.argwhere(accumulator > 30)
+# print(np.argwhere(accumulator))
+# print(rho_values)
+# lines = np.argwhere(accumulator > 30)
+lines = find_local_maxima(accumulator, 30)
 
 height, width = im_gray.shape
+
 for line in lines:
     rho = rho_values[line[0]]
     theta = theta_values[line[1]]
