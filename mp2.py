@@ -114,11 +114,11 @@ edge_nms = nms(gradient_magnitude, gradient_direction)
 # plt.show()
 
 # cv2.imshow("Before NMS", gradient_magnitude.astype(np.uint8))
-cv2.imshow("After NMS", edge_nms.astype(np.uint8))
+cv2.imwrite("images\After NMS.png", edge_nms.astype(np.uint8))
 # cv2.imwrite("images\imgnms.png", edge_nms)
-cv2.imshow("after hysteresis1", hysteresis(edge_nms, high = .05*255, low = .024*255).astype(np.uint8))
-cv2.imshow("after hysteresis2", hysteresis(edge_nms, high = .075*255, low = .04*255).astype(np.uint8))
-cv2.imshow("after hysteresis3", hysteresis(edge_nms, high = .03*255, low = .015*255).astype(np.uint8))
+cv2.imwrite("images\after hysteresis1.png", hysteresis(edge_nms, high = .05*255, low = .024*255).astype(np.uint8))
+cv2.imwrite("images\after hysteresis2.png", hysteresis(edge_nms, high = .075*255, low = .04*255).astype(np.uint8))
+cv2.imwrite("images\after hysteresis3.png", hysteresis(edge_nms, high = .03*255, low = .015*255).astype(np.uint8))
 cv2.waitKey()
 cv2.destroyAllWindows()
 
@@ -190,9 +190,9 @@ for line in lines:
     # cv2.imshow("Output", im)
     # cv2.waitKey(0)
 
-cv2.imshow("Edges", edge_map)
-cv2.imshow("Hough Transform", (accumulator*255/accumulator.max()).astype(np.uint8))
-cv2.imshow("Output", im)
+cv2.imwrite("images\Edges.png", edge_map)
+cv2.imwrite("images\Hough Transform.png", (accumulator*255/accumulator.max()).astype(np.uint8))
+cv2.imwrite("images\Output.png", im)
 
 accumulator, theta_values, rho_values = HoughTransform(edge_map2)
 lines = find_local_maxima(accumulator, 30)
@@ -211,9 +211,9 @@ for line in lines:
     # cv2.waitKey(0)
 
 
-cv2.imshow("Edges2", edge_map2)
-cv2.imshow("Hough Transform2", (accumulator*255/accumulator.max()).astype(np.uint8))
-cv2.imshow("Output2", im2)
+cv2.imwrite("images\Edges2.png", edge_map2)
+cv2.imwrite("images\Hough Transform2.png", (accumulator*255/accumulator.max()).astype(np.uint8))
+cv2.imwrite("images\Output2.png", im2)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
@@ -261,7 +261,7 @@ for x in range(len(lines2)):
 
         cv2.line(im3,(x1,y1),(x2,y2),(0,0,255),2)
 
-cv2.imshow("cv2Hough1", im2)
-cv2.imshow("cv2Hough2", im3)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+cv2.imwrite("images\cv2Hough1.png", im2)
+cv2.imwrite("images\cv2Hough2.png", im3)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
